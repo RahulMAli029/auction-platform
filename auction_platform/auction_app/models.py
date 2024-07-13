@@ -35,6 +35,7 @@ class Item(models.Model):
     auction_end = models.DateTimeField()
     image = models.ImageField(upload_to='images/', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    current_bid = models.DecimalField(max_digits=10, decimal_places=2, default=models.F('starting_bid'))
 
 class Bid(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)

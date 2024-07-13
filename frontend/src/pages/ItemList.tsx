@@ -18,6 +18,8 @@ const ItemList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRangeFilter, setPriceRangeFilter] = useState({ min: '', max: '' });
   const [auctionEndTimeFilter, setAuctionEndTimeFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6); // Number of items per page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +38,8 @@ const ItemList = () => {
       // Filter by title search term
       if (searchTerm.trim() !== '') {
         filtered = filtered.filter((item) =>
-          item.title.toLowerCase().includes(searchTerm.toLowerCase())
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.description.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
 
@@ -65,6 +68,7 @@ const ItemList = () => {
   // Handle changes in search input
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when search term changes
   };
 
   // Handle changes in price range filter
@@ -77,6 +81,7 @@ const ItemList = () => {
       ...prev,
       [type]: value,
     }));
+    setCurrentPage(1); // Reset to first page when price range filter changes
   };
 
   // Handle changes in auction end time filter
@@ -84,7 +89,16 @@ const ItemList = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setAuctionEndTimeFilter(e.target.value);
+    setCurrentPage(1); // Reset to first page when auction end time filter changes
   };
+
+  // Logic to paginate items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto p-4">
@@ -100,7 +114,7 @@ const ItemList = () => {
         {/* Search */}
         <div className="flex-1">
           <label htmlFor="search" className="text-gray-700">
-            Search by Title:
+            Search by Title/Description:
           </label>
           <input
             type="text"
@@ -162,8 +176,9 @@ const ItemList = () => {
             setSearchTerm('');
             setPriceRangeFilter({ min: '', max: '' });
             setAuctionEndTimeFilter('');
+            setCurrentPage(1); // Reset to first page when clearing filters
           }}
-          className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
           Clear Filters
         </button>
@@ -171,7 +186,7 @@ const ItemList = () => {
 
       {/* Item List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map((item) => (
+        {currentItems.map((item) => (
           <div
             key={item.id}
             className="bg-white shadow-md rounded-lg overflow-hidden"
@@ -199,6 +214,25 @@ const ItemList = () => {
             </Link>
           </div>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-6">
+        <nav className="flex items-center space-x-2">
+          {Array.from({ length: Math.ceil(filteredItems.length / itemsPerPage) }, (_, index) => (
+            <button
+              key={index}
+              onClick={() => paginate(index + 1)}
+              className={`px-3 py-1 rounded-md focus:outline-none ${
+                currentPage === index + 1
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </nav>
       </div>
     </div>
   );
