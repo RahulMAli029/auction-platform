@@ -53,12 +53,11 @@ class ItemViewSet(viewsets.ModelViewSet):
             'bid_increment': data.get('bid_increment'),
             'auction_start': data.get('auction_start'),
             'auction_end': data.get('auction_end'),
-            'user': user,
+            'user_id': data.get('user_id'),
             'image': request.data.get('image')  # Access uploaded image here
         }
         
         serializer = ItemSerializer(data=item_data)
-        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

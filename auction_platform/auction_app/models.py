@@ -33,7 +33,7 @@ class Item(models.Model):
     bid_increment = models.DecimalField(max_digits=10, decimal_places=2)
     auction_start = models.DateTimeField()
     auction_end = models.DateTimeField()
-    image = models.ImageField(upload_to='media/', null=True, blank=True)
+    image = models.ImageField(upload_to='images/', null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Bid(models.Model):
