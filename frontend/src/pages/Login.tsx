@@ -40,7 +40,7 @@ const Login = () => {
   // Render login form if user is not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen mx-auto bg-gray-100 flex items-center justify-center">
+      <div className="mt-20 bg-gray-100 flex items-center justify-center">
         <form onSubmit={otpGenerated ? handleSubmit: handleGenerateOtp} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
           <div className="text-2xl mb-4 text-gray-800">Login</div>
           <div className="mb-4">
@@ -73,7 +73,7 @@ const Login = () => {
 
   // Render logout button if user is authenticated
   return (
-    <div className="min-h-screen mx-auto bg-gray-100 flex items-center justify-center">
+    <div className="mt-20 bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-6 rounded shadow-md w-full max-w-sm">
         <p className="text-2xl mb-4 text-gray-800 text-center">You are already logged in.</p>
         <div className="w-auto flex justify-center">

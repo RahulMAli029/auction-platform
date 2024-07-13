@@ -26,7 +26,10 @@ export const fetchItems = async () => {
 };
 
 export const createItem = async (item: any) => {
-  const response = await api.post('/items/', item);
+  const response = await api.post('/items/', item, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },});
   return response.data;
 };
 
