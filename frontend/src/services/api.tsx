@@ -39,8 +39,18 @@ export const fetchItemDetails = async (id: string) => {
   return response.data;
 };
 
-export const placeBid = async (itemId: string, amount: number) => {
-  const response = await api.post('/bids/', { item: itemId, amount });
+export const fetchHighestBid = async (itemId: string) => {
+  try {
+    const response = await api.get(`/items/${itemId}/highest_bid/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching highest bid:', error);
+    throw error;
+  }
+};
+
+export const placeBid = async (itemId: string, amount: number, user:any) => {
+  const response = await api.post('/bids/', { item: itemId, amount, user });
   return response.data;
 };
 

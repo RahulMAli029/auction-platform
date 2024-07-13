@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchItemDetails, placeBid } from '../services/api';
+import { fetchItemDetails, fetchHighestBid, placeBid } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 interface Item {
@@ -8,6 +8,7 @@ interface Item {
   title: string;
   description: string;
   starting_bid: number;
+  bid_increment: number;
   image:string;
   auction_start:string;
   auction_end:string;
@@ -18,7 +19,9 @@ const ItemDetail = () => {
   const [item, setItem] = useState<Item | null>(null);
   const [amount, setAmount] = useState<number>(0);
   const { isAuthenticated } = useAuth();
+  const user = localStorage.getItem('token');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [highestBid, setHighestBid] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +29,8 @@ const ItemDetail = () => {
         try {
           const data = await fetchItemDetails(id);
           setItem(data);
+          const highestBidData = await fetchHighestBid(id);
+          setHighestBid(highestBidData.amount);
         } catch (error) {
           console.error('Error fetching item details', error);
         }
@@ -33,6 +38,24 @@ const ItemDetail = () => {
     };
     fetchData();
   }, [id]);
+
+  const handleBid = async () => {
+    if (id && item) {
+      try {
+        const minimumBid = highestBid ? highestBid + item.bid_increment : item.starting_bid;
+        if (amount < minimumBid) {
+          alert(`Bid must be at least ${minimumBid}`);
+          return;
+        }
+        await placeBid(id, amount, user);
+        alert('Bid placed successfully');
+        const highestBidData = await fetchHighestBid(id);
+        setHighestBid(highestBidData.amount);
+      } catch (error) {
+        console.error('Error placing bid', error);
+      }
+    }
+  };
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -58,17 +81,6 @@ const ItemDetail = () => {
   }
   
 
-  const handleBid = async () => {
-    if (id) {
-      try {
-        await placeBid(id, amount);
-        alert('Bid placed successfully');
-      } catch (error) {
-        console.error('Error placing bid', error);
-      }
-    }
-  };
-
   if (!item) return <div>Loading...</div>;
 
   return (
@@ -83,6 +95,8 @@ const ItemDetail = () => {
         <p className="text-gray-600">Starting Bid: ${item.starting_bid}</p>
         <p className="text-gray-600">Bid Start Date: {formatDate(item.auction_start)}</p>
         <p className="text-gray-600">Bid End Date: {formatDate(item.auction_end)}</p>
+        <p className="text-gray-600">Current Highest Bid: ${highestBid || item.starting_bid}</p>
+        <p className="text-gray-600">Bid Increment: ${item.bid_increment}</p>
         {isAuthenticated ? ( 
           isBidOpen(item.auction_start, item.auction_end) ? ( 
           <div className="mt-4">
@@ -98,7 +112,7 @@ const ItemDetail = () => {
             </button>
           </div>) : (
             <div className="mt-4">
-              <p>Bidding is not started yet</p>
+              <p>Bidding window is not open.</p>
             </div>
           )
         ) : (

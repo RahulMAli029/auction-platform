@@ -16,7 +16,6 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'starting_bid', 'bid_increment', 'auction_start', 'auction_end', 'user_id', 'image']
         
     def create(self, validated_data):
-        print(validated_data)
         item = Item.objects.create(
             title=validated_data['title'],
             description=validated_data['description'],
