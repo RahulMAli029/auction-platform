@@ -18,6 +18,7 @@ const ItemDetail = () => {
   const [item, setItem] = useState<Item | null>(null);
   const [amount, setAmount] = useState<number>(0);
   const { isAuthenticated } = useAuth();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,14 @@ const ItemDetail = () => {
     fetchData();
   }, [id]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalId); // Cleanup function to prevent memory leaks
+  }, []);
+
   const formatDate = (isoDate: string) => {
     const date = new Date(isoDate);
     return date.toLocaleDateString('en-US', {
@@ -43,6 +52,11 @@ const ItemDetail = () => {
       minute: 'numeric',
     });
   };
+
+  const isBidOpen = (start:string, end:string) => {
+    return currentTime > new Date(start) && currentTime < new Date(end)
+  }
+  
 
   const handleBid = async () => {
     if (id) {
@@ -69,7 +83,8 @@ const ItemDetail = () => {
         <p className="text-gray-600">Starting Bid: ${item.starting_bid}</p>
         <p className="text-gray-600">Bid Start Date: {formatDate(item.auction_start)}</p>
         <p className="text-gray-600">Bid End Date: {formatDate(item.auction_end)}</p>
-        {isAuthenticated ? (
+        {isAuthenticated ? ( 
+          isBidOpen(item.auction_start, item.auction_end) ? ( 
           <div className="mt-4">
             <input
               type="number"
@@ -81,7 +96,11 @@ const ItemDetail = () => {
             <button onClick={handleBid} className="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2">
               Place Bid
             </button>
-          </div>
+          </div>) : (
+            <div className="mt-4">
+              <p>Bidding is not started yet</p>
+            </div>
+          )
         ) : (
           <a href='/login'>
             <p className="mt-4 semi-bold underline">Please login to place a bid.</p>

@@ -91,6 +91,14 @@ const ItemList = () => {
     setAuctionEndTimeFilter(e.target.value);
     setCurrentPage(1); // Reset to first page when auction end time filter changes
   };
+  const formatDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
 
   // Logic to paginate items
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -206,11 +214,31 @@ const ItemList = () => {
                   <span className="text-gray-500">No Image</span>
                 )}
               </div>
-              <h2 className="text-xl font-semibold">{item.title}</h2>
-              <p className="mt-2 text-gray-600">{item.description}</p>
-              <p className="mt-2 text-gray-800 font-bold">
-                Starting Bid: ${item.starting_bid}
-              </p>
+              <div>
+  <h2 className="text-xl font-semibold">{item.title}</h2>
+  <p className="mt-2 text-gray-600">{item.description}</p>
+  <p className="mt-2 text-gray-800 font-bold">
+    Starting Bid: ${item.starting_bid}
+  </p>
+  <div className="mt-2 flex items-center text-gray-800 font-bold">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-6 h-6 mr-2"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+    {formatDate(item.auction_start)}
+  </div>
+</div>
+
             </Link>
           </div>
         ))}
